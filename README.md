@@ -22,4 +22,3 @@ docker-compose up -d
 * Mongo DB
 * Docker
 * Nest
-* 
