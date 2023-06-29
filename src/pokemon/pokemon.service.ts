@@ -1,6 +1,11 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, isValidObjectId } from 'mongoose';
 import { Pokemon } from './entities/pokemon.entity';
 
 import { CreatePokemonDto } from './dto/create-pokemon.dto';
@@ -25,8 +30,9 @@ export class PokemonService {
         );
       }
       console.log(error);
-      throw new InternalServerErrorException(`Can't create Pokemon - Check server logs`)
-      
+      throw new InternalServerErrorException(
+        `Can't create Pokemon - Check server logs`,
+      );
     }
   }
 
@@ -34,8 +40,28 @@ export class PokemonService {
     return `This action returns all pokemon`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} pokemon`;
+  async findOne(term: string) {
+    let pokemon: Pokemon;
+    if (!isNaN(+term)) {
+      pokemon = await this._pokemonModel.findOne({ no: term });
+    }
+    // Verificar con mongo ID
+    if (!pokemon && isValidObjectId(term)) {
+      // Verifica que sea un objeto de mongo
+      pokemon = await this._pokemonModel.findById(term);
+    }
+
+    if (!pokemon) {
+      pokemon = await this._pokemonModel.findOne({
+        name: term.toLocaleLowerCase().trim(),
+      });
+    }
+
+    if (!pokemon)
+      throw new NotFoundException(
+        `Pokemon with id, name or no, "${term}" not found`,
+      );
+    return pokemon;
   }
 
   update(id: number, updatePokemonDto: UpdatePokemonDto) {
