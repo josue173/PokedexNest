@@ -72,11 +72,22 @@ export class PokemonService {
   }
 
   async remove(id: string) {
-    // const pokemon = await this.findOne(id); // Buscando el pokemon
+    // const pokemon = await this.findOne(id); // Buscando el pokemon (1ra. llamada)
     // await pokemon.deleteOne();
     // return {id};
-    const result = this._pokemonModel.findByIdAndDelete(id);
-    return result;
+    // const result = this._pokemonModel.findByIdAndDelete(id); (2da. llamada)
+    /* 
+      El código anterior no se utilizó porque implicaba dos llamadas a la DB,
+      el que está debajo solo hace una llamada, del deleteOne se obtiene "deletedCount",
+      que indica el no. de datos eliminados, 0 indicia que no se borró nada 
+    */
+    const { deletedCount } = await this._pokemonModel.deleteOne({
+      _id: id,
+    });
+    if (deletedCount === 0) {
+      throw new BadRequestException(`Pokemon with id "${id}" not found`);
+    }
+    return;
   }
 
   private handleExceptions(error: any) {
