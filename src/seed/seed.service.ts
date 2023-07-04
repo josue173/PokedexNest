@@ -16,14 +16,22 @@ export class SeedService {
   ) {}
 
   async executeSEED() {
+    // Borrar la DB
+    await this._pokemonModel.deleteMany({});
+    // Obteniendo la data
     const { data } = await this.axios.get<PokeResponse>(
-      'https://pokeapi.co/api/v2/pokemon?limit=10',
+      'https://pokeapi.co/api/v2/pokemon?limit=600',
     );
+    // Definiendo una variable con arreglo de objetos {name, no}
+    const pokemonToInsert: { name: string; no: number }[] = [];
+    // Separando por segmentos, obtener el name y no e insertarlos en la variable pokemonToInsert
     data.results.forEach(async ({ name, url }) => {
       const segments = url.split('/'); // split para cortar segmentos por '/'
       const no: number = +segments[segments.length - 2];
-      const pokemon = await this._pokemonModel.create({ name, no });
+      pokemonToInsert.push({ name, no });
     });
+    // Hacer una llamada a la DB e insertar todo
+    this._pokemonModel.insertMany(pokemonToInsert);
     return 'SEED EXECUTED';
   }
 }
