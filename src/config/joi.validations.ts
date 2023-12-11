@@ -1,0 +1,11 @@
+// SE UTILIZA JOI PARA SER ESTRICTOS CON EL TIPO DE DATO, NO VENGA UN VALOR, ETC. ESTE PAQUETE VALIDA LOS OBJETOS
+
+import * as Joi from 'joi';
+
+/* CREAMOS UN VALIDATION SCHEMA, LAS PROPIEDADES QUE ESPERO, QUE EL OBJETO LUZCA DE LA MANERA QUE QUIERO */
+
+export const JoiValidatoinSchema = Joi.object({
+  MONGO_DB: Joi.required(),
+  PORT: Joi.number().default(3005),
+  DEFAULT_LIMIT: Joi.number().default(5),
+});
